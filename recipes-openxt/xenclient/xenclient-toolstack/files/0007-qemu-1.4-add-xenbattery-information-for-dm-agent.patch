@@ -1,0 +1,34 @@
+From 17d5accf62a0d4ce57f8a9c9f4479a15b1e94206 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Tue, 25 Jun 2013 16:17:51 +0100
+Subject: [PATCH 07/11] qemu-1.4: add xenbattery information for dm-agent
+
+---
+ xenops/dmagent.ml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/xenops/dmagent.ml b/xenops/dmagent.ml
+index 1cc3bdf..1cb3e94 100644
+--- a/xenops/dmagent.ml
++++ b/xenops/dmagent.ml
+@@ -266,7 +266,8 @@ let device_list =
+ 		"drive";
+ 		"net";
+ 		"xen_pci_pt";
+-		"xenmou"
++		"xenmou";
++		"xenbattery"
+ 	]
+ 
+ (* Indicate if we need the device *)
+@@ -274,6 +275,7 @@ let need_device info device =
+ 	match device with
+ 	| "xenfb" | "input" -> not info.Dm.hvm
+ 	| "xenmou" -> info.Dm.hvm
++	| "xenbattery" -> info.Dm.hvm
+ 	| "xen_pci_pt" -> info.Dm.hvm
+ 	| "svga" -> info.Dm.hvm && in_extras "std-vga" info
+ 	| "xengfx" -> info.Dm.hvm && in_extras "xengfx" info
+-- 
+2.1.0
+

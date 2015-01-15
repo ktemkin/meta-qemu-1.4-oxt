@@ -1,0 +1,56 @@
+From 8378e2011e39df7c02e5906464329c07914c77f6 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Wed, 5 Nov 2014 17:06:09 +0000
+Subject: [PATCH 1/2] [atapi_pt_helper] Add .gitignore
+
+---
+ atapi_pt_helper/.gitignore | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 atapi_pt_helper/.gitignore
+
+diff --git a/atapi_pt_helper/.gitignore b/atapi_pt_helper/.gitignore
+new file mode 100644
+index 0000000..a2122e7
+--- /dev/null
++++ b/atapi_pt_helper/.gitignore
+@@ -0,0 +1,37 @@
++Makefile.in
++Makefile
++
++/aclocal-copy
++/config.*
++/autom4te.cache
++/aclocal.m4
++/compile
++/configure
++/depcomp
++/install-sh
++/missing
++/src/config.h
++/src/config.h.in
++/src/config.h.in~
++/src/stamp-h1
++/src/version-num
++/src/version.h
++
++*.o
++*.ko
++*.obj
++*.elf
++
++*.gch
++*.pch
++
++*.lib
++*.a
++*.la
++*.lo
++
++*.so
++*.so.*
++*.out
++
++src/atapi_pt_helper
+-- 
+2.1.0
+

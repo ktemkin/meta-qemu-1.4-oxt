@@ -1,0 +1,53 @@
+From 76cb217286c97e13929d7087dae8b0fe681d0aa8 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 2 Oct 2014 14:27:15 +0100
+Subject: [PATCH 4/6] qemu/ioemu: Add XenMou device.
+
+---
+ src/ioemu-device.c | 11 +++++++++++
+ src/qemu-device.c  | 13 +++++++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/src/ioemu-device.c b/src/ioemu-device.c
+index f963aa9..e62ece2 100644
+--- a/src/ioemu-device.c
++++ b/src/ioemu-device.c
+@@ -238,3 +238,14 @@ static bool drive_device_parse_options (struct device_model *devmodel,
+ }
+ 
+ ioemu_device_init (drive, drive_device_parse_options);
++
++static  bool xenmou_device_parse_options (struct device_model *devmodel,
++                                          const char *device)
++{
++    (void) devmodel;
++    (void) device;
++
++    return true;
++}
++
++ioemu_device_init (xenmou, xenmou_device_parse_options);
+diff --git a/src/qemu-device.c b/src/qemu-device.c
+index eaf8682..c40ede3 100644
+--- a/src/qemu-device.c
++++ b/src/qemu-device.c
+@@ -254,3 +254,16 @@ drivefile:
+ }
+ 
+ qemu_device_init (drive, drive_device_parse_options);
++
++static  bool xenmou_device_parse_options (struct device_model *devmodel,
++                                          const char *device)
++{
++    (void) device;
++
++    SPAWN_ADD_ARG (devmodel, "-device");
++    SPAWN_ADD_ARG (devmodel, "xenmou");
++
++    return true;
++}
++
++qemu_device_init (xenmou, xenmou_device_parse_options);
+-- 
+2.1.0
+

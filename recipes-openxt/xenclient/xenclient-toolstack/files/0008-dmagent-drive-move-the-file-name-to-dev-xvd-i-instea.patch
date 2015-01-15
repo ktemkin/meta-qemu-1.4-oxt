@@ -1,0 +1,31 @@
+From e29a3b39ffae6535a38dd9dde9879aaaae1c86bf Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Wed, 4 Dec 2013 09:34:31 +0000
+Subject: [PATCH 08/11] [dmagent] drive: move the file name to /dev/xvd(i)
+ instead of /dev/hd(i)
+
+---
+ xenops/dmagent.ml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/xenops/dmagent.ml b/xenops/dmagent.ml
+index 1cb3e94..197418a 100644
+--- a/xenops/dmagent.ml
++++ b/xenops/dmagent.ml
+@@ -158,7 +158,12 @@ let create_device_drive ~trans info domid dmaid dmid id disk =
+ 	begin
+ 		let devname = sprintf "disk%d" id in
+ 		let devpath = (device_path dmaid domid dmid devname) in
+-		let file = if in_stubdom info then "/dev/" ^ disk.Device.Vbd.virtpath
++		let character = match String.explode disk.Device.Vbd.virtpath with
++					| 'h' :: 'd' :: x :: _ -> x
++					| _ ->
++							raise (Dm.Ioemu_failed ("Unhandle disk"))
++		in
++		let file = if in_stubdom info then "/dev/xvd" ^ (Printf.sprintf "%c" character)
+ 				 					  else disk.Device.Vbd.physpath in
+ 		let format = "raw" in (* Handle physical cdrom device *)
+ 		let media = if disk.Device.Vbd.dev_type = Device.Vbd.CDROM then "cdrom"
+-- 
+2.1.0
+

@@ -1,0 +1,51 @@
+From c7918678186cf8b07f8332ebbb99ea8b138bccd1 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 2 Oct 2014 14:27:37 +0100
+Subject: [PATCH 5/6] qemu: Add battery command.
+
+---
+ src/ioemu-device.c | 10 ++++++++++
+ src/qemu-device.c  | 12 ++++++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/src/ioemu-device.c b/src/ioemu-device.c
+index e62ece2..e004ed1 100644
+--- a/src/ioemu-device.c
++++ b/src/ioemu-device.c
+@@ -249,3 +249,13 @@ static  bool xenmou_device_parse_options (struct device_model *devmodel,
+ }
+ 
+ ioemu_device_init (xenmou, xenmou_device_parse_options);
++
++static  bool xenbattery_device_parse_options (struct device_model *devmodel,
++                                              const char *device)
++{
++    (void) device;
++    (void) devmodel;
++
++    return true;
++}
++ioemu_device_init (xenbattery, xenbattery_device_parse_options);
+diff --git a/src/qemu-device.c b/src/qemu-device.c
+index c40ede3..df763ac 100644
+--- a/src/qemu-device.c
++++ b/src/qemu-device.c
+@@ -267,3 +267,15 @@ static  bool xenmou_device_parse_options (struct device_model *devmodel,
+ }
+ 
+ qemu_device_init (xenmou, xenmou_device_parse_options);
++
++static  bool xenbattery_device_parse_options (struct device_model *devmodel,
++                                              const char *device)
++{
++    (void) device;
++
++    SPAWN_ADD_ARG (devmodel, "-xenbattery");
++
++    return true;
++}
++
++qemu_device_init (xenbattery, xenbattery_device_parse_options);
+-- 
+2.1.0
+

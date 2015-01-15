@@ -1,0 +1,35 @@
+From 65f715278b2ae3de5814d65eed8cf1590d63555d Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Wed, 15 Aug 2012 21:43:15 +0100
+Subject: [PATCH 02/11] dmagent: pass to stubdom cmdline a flag for qemu-dm
+
+---
+ xenops/dmagent.ml | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/xenops/dmagent.ml b/xenops/dmagent.ml
+index 395c78b..964ca64 100644
+--- a/xenops/dmagent.ml
++++ b/xenops/dmagent.ml
+@@ -151,7 +151,6 @@ let create_device_serial ~trans info domid dmaid dmid =
+ 	let devpath = (device_path dmaid domid dmid "serial") ^ "/device" in
+ 	trans.Xst.write devpath info.Dm.serial
+ 
+-
+ let create_device_drive ~trans info domid dmaid dmid id disk =
+ 	if disk.Device.Vbd.dev_type != Device.Vbd.Disk then
+ 		id
+@@ -316,7 +315,9 @@ let create_devmodel ~xs ~timeout info domid dmaid dmid dminfo =
+ 
+ (* Create a stubdomain with dm-agent inside *)
+ let create_stubdomain ~xc ~xs ~timeout info target_domid uuid =
+-	let args = ["dmagent"; sprintf "%u" target_domid] in
++	let use_qemu_dm = try ignore (Unix.stat "/config/qemu-dm"); [ "qemu-dm" ]
++					  with _ -> [] in
++	let args = ["dmagent"; sprintf "%u" target_domid] @ use_qemu_dm in
+ 	let stubdom_domid = Dm.create_dm_stubdom ~xc ~xs args info target_domid uuid in
+ 	(* Wait that dm-agent has been created *)
+ 	let waitpath = dmagent_path (string_of_int stubdom_domid) "capabilities" in
+-- 
+2.1.0
+

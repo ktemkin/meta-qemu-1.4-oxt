@@ -1,0 +1,37 @@
+From 17392a54bc05e4fb39f18c2e2552a3f360b6598a Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Mon, 10 Jun 2013 11:03:14 +0100
+Subject: [PATCH 05/11] qemu-1.4: add xenmou device configuration for dm-agent
+
+ensure that we use xenmou device with qemu-dm
+(not compatible with ioemu)
+---
+ xenops/dmagent.ml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/xenops/dmagent.ml b/xenops/dmagent.ml
+index 145701c..58adf9f 100644
+--- a/xenops/dmagent.ml
++++ b/xenops/dmagent.ml
+@@ -239,13 +239,17 @@ let device_list =
+ 		"input";
+ 		"cdrom";
+ 		"drive";
+-		"net"
++		"net";
++		"xenmou"
+ 	]
+ 
+ (* Indicate if we need the device *)
+ let need_device info device =
++	let may_I_use_qemu_dm = try ignore (Unix.stat "/config/qemu-dm"); true
++				with _ -> false in
+ 	match device with
+ 	| "xenfb" | "input" -> not info.Dm.hvm
++	| "xenmou" -> info.Dm.hvm && may_I_use_qemu_dm
+ 	| "svga" -> info.Dm.hvm && in_extras "std-vga" info
+ 	| "xengfx" -> info.Dm.hvm && in_extras "xengfx" info
+ 	| "vgpu" -> info.Dm.hvm && in_extras "vgpu" info
+-- 
+2.1.0
+

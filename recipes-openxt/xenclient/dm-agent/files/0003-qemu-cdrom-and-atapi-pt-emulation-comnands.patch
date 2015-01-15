@@ -1,0 +1,62 @@
+From e2c2801f1f471daf82ed0aff0c4f767d2727215b Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 2 Oct 2014 14:26:59 +0100
+Subject: [PATCH 3/6] qemu: cdrom and atapi-pt emulation comnands
+
+---
+ src/qemu-device.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
+
+diff --git a/src/qemu-device.c b/src/qemu-device.c
+index 57c08d6..eaf8682 100644
+--- a/src/qemu-device.c
++++ b/src/qemu-device.c
+@@ -118,27 +118,29 @@ qemu_device_init (svga, svga_device_parse_options);
+ static bool cdrom_device_parse_options (struct device_model *devmodel,
+                                         const char *device)
+ {
+-    char *cdrom = device_option (devmodel, device, "device");
+-    bool res = true;
+-
+-    /* Skip cdrom for the moment */
+-    return true;
++    char *devicepath;
++    char *option = NULL;
++    bool res = false;
+ 
+-    if (!cdrom)
+-    {
+-        device_error (devmodel, device, "missing device option to create cdrom device");
+-        return false;
+-    }
++    option = device_option (devmodel, device, "option");
++    devicepath = retrieve_option (devmodel, device, "device", cdromdevice);
+ 
+-    res = spawn_add_argument (devmodel, "-cdrom");
+-    if (!res)
+-        goto end_cdrom;
++    if (!option) {
++        SPAWN_ADD_ARG (devmodel, "-cdrom");
++        SPAWN_ADD_ARG (devmodel, "%s", devicepath);
++    } else {
++        SPAWN_ADD_ARG (devmodel, "-drive");
++        SPAWN_ADD_ARG (devmodel,
++                       "file=%s,media=cdrom,if=atapi-pt,format=pt",
++                       devicepath);
+ 
+-    res = spawn_add_argument (devmodel, cdrom);
++        free (option);
++    }
+ 
+-end_cdrom:
+-    free (cdrom);
++    res = true;
+ 
++    free (devicepath);
++cdromdevice:
+     return res;
+ }
+ 
+-- 
+2.1.0
+
