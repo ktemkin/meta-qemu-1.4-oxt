@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Copyright (c) 2013 Citrix Systems, Inc.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+usage() {
+    echo "Usage: qemu-ifup setup <bridge> <adaptor>     Setup bridge with master adaptor."
+    echo "       qemu-ifup <qemu-netdev> [bridge]       Add Qemu's netdev to bridge."
+}
+
+# Keep a format compatible with Qemu -netdev type=tap format.
+backend="$1"
+bridge="${2:-brbridged}"
+adaptor="${3:-eth0}"
+
+# Create the bridge if missing.
+if [ ! -e "/sys/class/net/${bridge}" ]; then
+    echo "Create bridge \`${bridge}'."
+    brctl addbr "${bridge}"
+    brctl setfd "${bridge}" 0
+    # if break_8021d is disabled in NDVM, packets passing the bridge will be filtered
+    # See linux patch-queue, patch `break-8021d'.
+    echo 1 > /sys/class/net/${bridge}/bridge/break_8021d
+fi
+
+# Setup the bridge if not done already.
+if [ ! -e "/sys/class/net/${bridge}/brif/${adaptor}" ]; then
+    if [ -e "/sys/class/net/${adaptor}" ]; then
+        echo "Set up adaptor \`${adaptor}' master as bridge \`${bridge}'."
+        ifconfig "${adaptor}" 0.0.0.0 promisc
+        brctl addif "${bridge}" "${adaptor}"
+        ifconfig "${adaptor}" up
+        ifconfig "${bridge}" up
+    else
+        echo "Adaptor \`${adaptor}' does not exist."
+        exit 1
+    fi
+fi
+
+case $# in
+    1|2)
+        echo "Add Qemu netdev \`${backend}' to bridge \`${bridge}'."
+        if [ -e "/sys/class/net/${backend}" ]; then
+            ifconfig "${backend}" 0.0.0.0 promisc
+            brctl addif "${bridge}" "${backend}"
+            ifconfig "${backend}" up
+        else
+            echo "Qemu netdev \`${backend}' does not exist."
+            exit 1
+        fi
+        ;;
+    3)
+        case "$1" in
+            "setup")
+                # Do it by default, but that could change.
+                echo "Setup bridge \`${bridge}' with master adaptor \`${adaptor}'."
+                ;;
+            *)
+                usage; exit 1
+                ;;
+        esac
+        ;;
+    *)
+        usage; exit 1
+        ;;
+esac
+
