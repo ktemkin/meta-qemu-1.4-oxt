@@ -1,0 +1,83 @@
+From 94468a5c59a6384bc290c7c2265b8129fb4bc84d Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 2 Oct 2014 14:26:12 +0100
+Subject: [PATCH 1/6] Fix headers in Makefiles.
+
+---
+ Makefile.am      | 13 -------------
+ src/Makefile.am  | 12 ------------
+ test/Makefile.am | 12 ------------
+ 3 files changed, 37 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 45d4076..44f7c01 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,16 +1,4 @@
+ #
+-#
+-# Makefile.am:
+-#
+-#
+-# $Id:$
+-#
+-# $Log:$
+-#
+-#
+-#
+-
+-#
+ # Copyright (c) 2012 Citrix Systems, Inc.
+ # 
+ # This program is free software; you can redistribute it and/or modify
+@@ -28,5 +16,4 @@
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ #
+ 
+-
+ SUBDIRS = src
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 22dc21d..8a512dc 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1,16 +1,4 @@
+ #
+-#
+-# Makefile.am:
+-#
+-#
+-# $Id:$
+-#
+-# $Log:$
+-#
+-#
+-#
+-
+-#
+ # Copyright (c) 2012 Citrix Systems, Inc.
+ # 
+ # This program is free software; you can redistribute it and/or modify
+diff --git a/test/Makefile.am b/test/Makefile.am
+index bfe8ec3..7da0831 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -1,16 +1,4 @@
+ #
+-#
+-# Makefile.am:
+-#
+-#
+-# $Id:$
+-#
+-# $Log:$
+-#
+-#
+-#
+-
+-#
+ # Copyright (c) 2012 Citrix Systems, Inc.
+ # 
+ # This program is free software; you can redistribute it and/or modify
+-- 
+2.1.0
+

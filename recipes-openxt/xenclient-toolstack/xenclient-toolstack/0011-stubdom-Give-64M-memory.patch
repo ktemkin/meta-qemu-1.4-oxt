@@ -1,0 +1,26 @@
+From b9ecdbf4ec4b75a64e68244468f643436c673bab Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Mon, 12 Jan 2015 20:02:25 +0000
+Subject: [PATCH 11/11] [stubdom] Give 64M memory.
+
+This will hopefuly be lowered soon ...
+---
+ xenvm/vmconfig.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/xenvm/vmconfig.ml b/xenvm/vmconfig.ml
+index 6ad8c01..58ddda2 100644
+--- a/xenvm/vmconfig.ml
++++ b/xenvm/vmconfig.ml
+@@ -812,7 +812,7 @@ let empty =
+ 		flask_label = None;
+ 		cores_per_socket = None;
+ 		stubdom = None;
+-		stubdom_memory = 48L;
++		stubdom_memory = 64L;
+ 		stubdom_initrd = Some "/usr/lib/xen/boot/stubdomain-initramfs";
+ 		stubdom_kernel = "/usr/lib/xen/boot/stubdomain-bzImage";
+ 		stubdom_cmdline = "init=/init xen_blkfront.max=8";
+-- 
+2.1.0
+

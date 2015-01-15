@@ -1,0 +1,155 @@
+From d2affe7e83eda30ddd928a306c218c9467417167 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 2 Oct 2014 14:26:35 +0100
+Subject: [PATCH 2/6] Add qemu-dm-wrapper script.
+
+---
+ Makefile.am             |  2 +-
+ configure.ac            |  1 +
+ scripts/Makefile.am     |  1 +
+ scripts/qemu-dm-wrapper | 74 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/spawn.c             | 11 ++++++--
+ 5 files changed, 86 insertions(+), 3 deletions(-)
+ create mode 100644 scripts/Makefile.am
+ create mode 100755 scripts/qemu-dm-wrapper
+
+diff --git a/Makefile.am b/Makefile.am
+index 44f7c01..3fce736 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -16,4 +16,4 @@
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ #
+ 
+-SUBDIRS = src
++SUBDIRS = src scripts
+diff --git a/configure.ac b/configure.ac
+index dc1feee..19583a1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -326,5 +326,6 @@ AC_CONFIG_MACRO_DIR([m4])
+ AM_CONFIG_HEADER(src/config.h)
+ 
+ AC_CONFIG_FILES([Makefile
++                 scripts/Makefile
+                  src/Makefile])
+ AC_OUTPUT
+diff --git a/scripts/Makefile.am b/scripts/Makefile.am
+new file mode 100644
+index 0000000..1c1032e
+--- /dev/null
++++ b/scripts/Makefile.am
+@@ -0,0 +1 @@
++bin_SCRIPTS = qemu-dm-wrapper
+diff --git a/scripts/qemu-dm-wrapper b/scripts/qemu-dm-wrapper
+new file mode 100755
+index 0000000..8411be9
+--- /dev/null
++++ b/scripts/qemu-dm-wrapper
+@@ -0,0 +1,74 @@
++#!/bin/sh
++
++# Interposer for qemu upstream
++
++DOMID=$1
++shift 1
++
++# configure and use per-vm alsa pcm device with softvol control
++ALSA_VMID=$DOMID
++cat >/tmp/alsa-vm-${ALSA_VMID}.conf <<END
++pcm.vm-${ALSA_VMID} {
++  type softvol
++  slave {
++    pcm "asym0"
++  }
++  control {
++    name "vm-${ALSA_VMID}"
++    card 0
++  }
++}
++pcm.asym0 {
++    type asym
++    playback.pcm "dmix0"
++    capture.pcm "dsnoop0"
++}
++
++pcm.dmix0 {
++    type dmix
++    ipc_key 1024
++    ipc_perm 0666
++    slave {
++        pcm {
++            type hw
++            card 0
++            device 0
++            subdevice 0
++        }
++        period_size 1024
++        buffer_size 8192
++        format "S16_LE"
++        periods 8
++        rate 44100
++	channels 2
++    }
++}
++
++pcm.dsnoop0 {
++    type dsnoop
++    ipc_key 1025
++    ipc_perm 0666
++    slave {
++        pcm {
++            type hw
++            card 0
++            device 0
++            subdevice 0
++        }
++        period_size 1024
++        buffer_size 8192
++        format "S16_LE"
++        periods 8
++        rate 44100
++	channels 2
++    }
++}
++END
++export ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf:/tmp/alsa-vm-${ALSA_VMID}.conf
++export QEMU_ALSA_DAC_DEV=plug:vm-${ALSA_VMID}
++export QEMU_ALSA_ADC_DEV=plug:dsnoop0
++export QEMU_ALSA_VOL_CTRL=vm-${ALSA_VMID}
++
++ARGS="$*"
++
++exec /usr/bin/qemu-system-i386 $ARGS
+diff --git a/src/spawn.c b/src/spawn.c
+index e2e7e1e..354e792 100644
+--- a/src/spawn.c
++++ b/src/spawn.c
+@@ -30,7 +30,8 @@
+ #include "util.h"
+ 
+ #define ARGS_BATCH 10
+-#define QEMU_NEW_PATH "/usr/bin/qemu-system-i386"
++#define QEMU_PATH "/usr/bin/qemu-dm-wrapper"
++#define QEMU_STUBDOM_PATH "/usr/bin/qemu-system-i386"
+ #define IOEMU_PATH "/usr/sbin/svirt-interpose"
+ #define IOEMU_STUBDOM_PATH "/usr/lib/xen/bin/qemu-dm"
+ #define WAITPID_TIMER 2000 /* In millisecond */
+@@ -123,7 +124,13 @@ static bool spawn_init (void)
+ 
+ static bool spawn_qemu_args (struct device_model *devmodel)
+ {
+-    SPAWN_ADD_ARG (devmodel, QEMU_NEW_PATH);
++    if (dm_agent_in_stubdom ())
++        SPAWN_ADD_ARG (devmodel, QEMU_STUBDOM_PATH);
++    else
++    {
++        SPAWN_ADD_ARG (devmodel, QEMU_PATH);
++        SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->domid);
++    }
+ 
+     SPAWN_ADD_ARG (devmodel, "-xen-domid");
+     SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->domid);
+-- 
+2.1.0
+
