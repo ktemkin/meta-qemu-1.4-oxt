@@ -1,4 +1,4 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 100}"
+PRINC := "${@int(PRINC) + 500}"
 

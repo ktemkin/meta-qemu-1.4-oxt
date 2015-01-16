@@ -1,9 +1,9 @@
-FILESEXTRAPATHS := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS := "${THISDIR}/files:"
 
-PRINC := "${@int(PRINC) + 200}"
+PRINC := "${@int(PRINC) + 500}"
 
-SRC_URI += "file://files/0002-atapi-pt-helper-Qemu-dm-cleanup.patch;PATCH=1"
-SRC_URI += "file://files/0001-atapi_pt_helper-Add-.gitignore.patch;PATCH=1"
-
-
+SRC_URI += " \
+  file://0001-atapi_pt_helper-Add-.gitignore.patch \
+  file://0002-atapi-pt-helper-Qemu-dm-cleanup.patch \
+"
 

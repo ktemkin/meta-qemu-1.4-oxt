@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 151}"
+PRINC := "${@int(PRINC) + 500}"
 
 IMAGE_INSTALL += " qemu-dm-stubdom rsyslog "
 

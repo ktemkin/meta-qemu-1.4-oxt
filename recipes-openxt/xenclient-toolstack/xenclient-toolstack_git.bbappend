@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 200}"
+PRINC := "${@int(PRINC) + 500}"
 
 SRC_URI += " \
   file://0004-dmagent-pass-to-dm-agent-a-name-for-nic-device.patch \
