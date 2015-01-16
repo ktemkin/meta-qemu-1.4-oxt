@@ -1,1 +1,1 @@
-FILESEXTRAPATHS := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS := "${THISDIR}/files/xenclient-stubdomain:"

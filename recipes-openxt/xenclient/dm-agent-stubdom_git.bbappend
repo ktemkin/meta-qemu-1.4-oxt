@@ -1,6 +1,6 @@
-FILESEXTRAPATHS := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS := "${THISDIR}/files:"
 
-PRINC := "${@int(PRINC) + 200}"
+PRINC := "${@int(PRINC) + 500}"
 
 SRC_URI += "file://files/0006-qemu-Add-xen-pci-passthrough-command.patch;PATCH=1"
 SRC_URI += "file://files/0003-qemu-cdrom-and-atapi-pt-emulation-comnands.patc;PATCH=1"
