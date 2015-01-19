@@ -1,7 +1,7 @@
 From 76cb217286c97e13929d7087dae8b0fe681d0aa8 Mon Sep 17 00:00:00 2001
 From: eric-ch <eric.chanudet@gmail.com>
 Date: Thu, 2 Oct 2014 14:27:15 +0100
-Subject: [PATCH 4/6] qemu/ioemu: Add XenMou device.
+Subject: [PATCH 4/9] qemu/ioemu: Add XenMou device.
 
 ---
  src/ioemu-device.c | 11 +++++++++++

@@ -1,0 +1,28 @@
+From 997c2fdc20d68f3e25db8878e0270d0dfc57e815 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Thu, 8 Jan 2015 17:15:46 +0000
+Subject: [PATCH 8/9] Honor the configured boot order.
+
+---
+ src/spawn.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/spawn.c b/src/spawn.c
+index 354e792..24b54e4 100644
+--- a/src/spawn.c
++++ b/src/spawn.c
+@@ -152,6 +152,11 @@ static bool spawn_qemu_args (struct device_model *devmodel)
+     SPAWN_ADD_ARG (devmodel, "-smp");
+     SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->vcpus);
+ 
++    if (devmodel->domain->boot && strcmp(devmodel->domain->boot, "")) {
++        SPAWN_ADD_ARG (devmodel, "-boot");
++        SPAWN_ADD_ARG (devmodel, "%s", devmodel->domain->boot);
++    }
++
+     return true;
+ }
+ 
+-- 
+2.1.0
+

@@ -1,7 +1,7 @@
 From c7918678186cf8b07f8332ebbb99ea8b138bccd1 Mon Sep 17 00:00:00 2001
 From: eric-ch <eric.chanudet@gmail.com>
 Date: Thu, 2 Oct 2014 14:27:37 +0100
-Subject: [PATCH 5/6] qemu: Add battery command.
+Subject: [PATCH 5/9] qemu: Add battery command.
 
 ---
  src/ioemu-device.c | 10 ++++++++++
