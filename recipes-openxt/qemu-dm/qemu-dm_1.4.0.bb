@@ -26,3 +26,4 @@ SRC_URI[tarball.sha256sum] = "066297ed77408fb7588889c271a85cf3c259ad55c939315988
 
 EXTRA_OECONF += "--enable-debug --disable-strip --audio-drv-list=alsa "
 
+PR = "${INC_PR}.1"
