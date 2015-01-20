@@ -9,4 +9,7 @@ SRC_URI += " \
   file://0004-qemu-ioemu-Add-XenMou-device.patch \
   file://0005-qemu-Add-battery-command.patch \
   file://0006-qemu-Add-xen-pci-passthrough-command.patch \
-"
+  file://0007-qemu-1.4-Add-graphic-options.patch \
+  file://0008-Honor-the-configured-boot-order.patch \
+  file://0009-Pass-the-correct-format-for-cdrom-atapi-passthrough.patch \
+  "

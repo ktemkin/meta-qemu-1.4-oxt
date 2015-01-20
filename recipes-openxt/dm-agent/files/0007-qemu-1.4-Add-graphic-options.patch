@@ -1,0 +1,35 @@
+From 8a8c79e03c5e2fed581fbeaa2166d3f4026b5589 Mon Sep 17 00:00:00 2001
+From: eric-ch <eric.chanudet@gmail.com>
+Date: Fri, 24 Oct 2014 12:16:54 +0100
+Subject: [PATCH 7/9] [qemu-1.4] Add graphic options.
+
+---
+ src/qemu-device.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/src/qemu-device.c b/src/qemu-device.c
+index 54c8fc4..9055d4f 100644
+--- a/src/qemu-device.c
++++ b/src/qemu-device.c
+@@ -101,14 +101,12 @@ qemu_device_init (acpi, acpi_device_parse_options);
+ static bool svga_device_parse_options (struct device_model *devmodel,
+                                        const char *device)
+ {
+-    return true;
+-
+     (void) device;
+ 
+-    SPAWN_ADD_ARG (devmodel, "-videoram");
+-    SPAWN_ADD_ARG (devmodel, "16");
+-    SPAWN_ADD_ARG (devmodel, "-surfman");
+-    SPAWN_ADD_ARG (devmodel, "-std-vga");
++    SPAWN_ADD_ARG (devmodel, "-vga");
++    SPAWN_ADD_ARG (devmodel, "std");
++    SPAWN_ADD_ARG (devmodel, "-display");
++    SPAWN_ADD_ARG (devmodel, "surfman");
+ 
+     return true;
+ }
+-- 
+2.1.0
+

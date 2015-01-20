@@ -1,7 +1,7 @@
 From d2affe7e83eda30ddd928a306c218c9467417167 Mon Sep 17 00:00:00 2001
 From: eric-ch <eric.chanudet@gmail.com>
 Date: Thu, 2 Oct 2014 14:26:35 +0100
-Subject: [PATCH 2/6] Add qemu-dm-wrapper script.
+Subject: [PATCH 2/9] Add qemu-dm-wrapper script.
 
 ---
  Makefile.am             |  2 +-
