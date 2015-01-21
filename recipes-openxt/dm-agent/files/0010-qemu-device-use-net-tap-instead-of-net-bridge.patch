@@ -1,0 +1,45 @@
+From cb027c6d5725ae16e6eb00ac72684e90c4adf82b Mon Sep 17 00:00:00 2001
+From: Chris Patterson <pattersonc@ainfosec.com>
+Date: Tue, 20 Jan 2015 16:06:45 -0500
+Subject: [PATCH] qemu-device: use -net tap instead of -net bridge
+
+Signed-off-by: Chris Patterson <pattersonc@ainfosec.com>
+---
+ src/qemu-device.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/src/qemu-device.c b/src/qemu-device.c
+index 9fe6d69..68f1437 100644
+--- a/src/qemu-device.c
++++ b/src/qemu-device.c
+@@ -155,21 +155,19 @@ static bool net_device_parse_options (struct device_model *devmodel,
+     char *name;
+     bool res = false;
+ 
+-    /* Fix need to handle bdf */
+-
+     id = retrieve_option (devmodel, device, "id", netid);
+     model = retrieve_option (devmodel, device, "model", netmodel);
+     bridge = retrieve_option (devmodel, device, "bridge", netbridge);
+     mac = retrieve_option (devmodel, device, "mac", netmac);
+     name = retrieve_option (devmodel, device, "name", netname);
+ 
+-    SPAWN_ADD_ARGL (devmodel, end_net, "-device");
+-    SPAWN_ADD_ARGL (devmodel, end_net, "%s,id=%s,netdev=%s,mac=%s",
+-                    model, name, device, mac);
++    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
++    SPAWN_ADD_ARGL (devmodel, end_net, "nic,vlan=%s,name=%s,macaddr=%s,model=%s",
++                    id, name, mac, model);
+ 
+-    SPAWN_ADD_ARGL (devmodel, end_net, "-netdev");
+-    SPAWN_ADD_ARGL (devmodel, end_net, "type=bridge,id=%s,br=%s",
+-                    device, bridge);
++    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
++    SPAWN_ADD_ARGL (devmodel, end_net, "tap,vlan=%s,ifname=tap%u.%s,script=/etc/qemu/qemu-ifup",
++                    id, devmodel->domain->domid, id);
+ 
+     res = true;
+ 
+-- 
+1.7.10.4
+

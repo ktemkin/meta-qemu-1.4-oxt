@@ -5,9 +5,6 @@ DEPENDS = "xen-tools alsa-lib pciutils libpng blktap libxenacpi libv4v openssl z
 
 SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2;name=tarball"
 
-SRC_URI += "file://bridge.conf \
-            file://qemu-ifup \
-            "
 S = "${WORKDIR}/qemu-${PV}"
 
 inherit xenclient
@@ -23,6 +20,8 @@ FILES_${PN}-extra-roms = "/usr/share/qemu/*"
 INSANE_SKIP_${PN}-extra-roms = "arch"
 
 PACKAGES += "${PN}-extra-keymaps ${PN}-extra-roms"
+
+INC_PR = "r1"
 
 do_configure(){
     ${S}/configure ${EXTRA_OECONF} --enable-xen \
@@ -50,10 +49,3 @@ do_install(){
     # QEMU's build system conflicts with STRIP defined in OE.
     DESTDIR=${D} oe_runmake STRIP='' install
 }
-
-do_install_append(){
-    install -m 0755 -d ${D}${sysconfdir}/qemu
-    install -m 0644 ${WORKDIR}/bridge.conf ${D}${sysconfdir}/qemu/bridge.conf
-    install -m 0755 ${WORKDIR}/qemu-ifup ${D}${sysconfdir}/qemu/qemu-ifup
-}
-
