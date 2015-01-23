@@ -31,7 +31,7 @@
  #define PCI_DEVICE_ID_NEC_UPD720200      0x0194
 --- /dev/null
 +++ b/hw/xenmou.c
-@@ -0,0 +1,764 @@
+@@ -0,0 +1,767 @@
 +/*
 + * ITEmou.c: xen mouse pci card emulator
 + */
@@ -328,6 +328,9 @@
 +            schedule_irq += xenmou_inject(xm, x, y, RELATIVE);
 +        }
 +    }
++
++    if (z * z == 1)
++        schedule_irq += xenmou_inject(xm, -z, 0, VWHEEL);
 +
 +    if (schedule_irq && xm->enable_device_interrupts) {
 +        xm->isr |= XMOU_ISR_INT;
