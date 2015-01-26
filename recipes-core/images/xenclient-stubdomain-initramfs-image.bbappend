@@ -1,6 +1,6 @@
 PRINC := "${@int(PRINC) + 500}"
 
-IMAGE_INSTALL += " qemu-dm-stubdom qemu-dm-stubdom-extra-roms rsyslog "
+IMAGE_INSTALL += " qemu-dm-stubdom rsyslog "
 
 # does not work - use PACKAGE_REMOVE
 #IMAGE_INSTALL_remove = "ioemu"
