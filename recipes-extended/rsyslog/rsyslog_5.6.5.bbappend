@@ -1,1 +1,3 @@
-FILESEXTRAPATHS := "${THISDIR}/files/xenclient-stubdomain:"
+FILESEXTRAPATHS := "${THISDIR}/files:"
+
+PRINC := "${@int(PRINC) + 500}"
