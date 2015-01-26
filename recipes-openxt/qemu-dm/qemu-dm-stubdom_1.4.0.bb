@@ -22,6 +22,8 @@ SRC_URI += "file://static-fix.patch;patch=1 \
             file://vga-shadow-bda.patch;patch=1 \
             file://surfman-dcl.patch;patch=1 \
             file://qemu-ifup-stubdom \
+            file://fix-surfman-coherency.patch;patch=1 \
+            file://change-default-pixelformat.patch;patch=1 \
             "
 
 SRC_URI[tarball.md5sum] = "78f13b774814b6b7ebcaf4f9b9204318"
@@ -34,4 +36,4 @@ do_install_append(){
     install -m 0755 ${WORKDIR}/qemu-ifup-stubdom ${D}${sysconfdir}/qemu/qemu-ifup
 }
 
-PR = "${INC_PR}.1"
+PR = "${INC_PR}.2"
