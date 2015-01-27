@@ -31,7 +31,7 @@
  #define PCI_DEVICE_ID_NEC_UPD720200      0x0194
 --- /dev/null
 +++ b/hw/xenmou.c
-@@ -0,0 +1,767 @@
+@@ -0,0 +1,806 @@
 +/*
 + * ITEmou.c: xen mouse pci card emulator
 + */
@@ -276,6 +276,28 @@
 +{
 +    PCIXenMouState *x = opaque;
 +
++    /*
++     * xenmou2 exposes only absolute-capable devices, as relative
++     * ones are converted to absolute for x and y axis.
++     * The potential scroll wheel of a given device is still exposed
++     * in relative, so scrolls can be sent through that same device.
++     *
++     * However, Linux seems to block relative events coming from
++     * absolute-enabled devices. Scroll events appear in evtest, but
++     * they don't make it to X.
++     *
++     * As a workaround, we send the scrolls through the qemu emulated
++     * mouse using kbd_mouse_event().
++     * Note: The last argument is the buttons status. We have no way
++     * to know what the current status is, so we send 0.
++     * This should be fine, as the emulated mouse should be unused
++     * when using xenmou2, clicks are sent through the latter.
++     */
++    if (type == EV_REL && code == REL_WHEEL) {
++        kbd_mouse_event(0, 0, -value, 0);
++        return;
++    }
++
 +    xenmou_inject_record(x, type, code, value);
 +    if (type == EV_SYN) {
 +        interrupt(x);
@@ -329,6 +351,23 @@
 +        }
 +    }
 +
++    /*
++     * Also handle scrolls (z axis). This will send them to the
++     * relative side of the xenmou device.
++     *
++     * Windows is happy with this.
++     *
++     * Depending on how the frontend is implemented, Linux may not be,
++     * as it doesn't like to see relative events coming from
++     * absolute-enabled devices.
++     * However, Linux uses xenmou2, so this is not a problem.
++     *
++     * An alternative solution would be to do like for xenmou2 and use
++     * the following the send the event to the emulated mouse (weirder
++     * and slower):
++     *
++     * kbd_mouse_event(0, 0, -z, 0);
++     */
 +    if (z * z == 1)
 +        schedule_irq += xenmou_inject(xm, -z, 0, VWHEEL);
 +
