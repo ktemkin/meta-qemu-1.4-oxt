@@ -21,6 +21,7 @@ SRC_URI += "file://static-fix.patch;patch=1 \
             file://vga-spinlock.patch;patch=1 \
             file://vga-shadow-bda.patch;patch=1 \
             file://surfman-dcl.patch;patch=1 \
+            file://audio-policy.patch;patch=1 \
             file://qemu-ifup-stubdom \
             file://fix-surfman-coherency.patch;patch=1 \
             file://change-default-pixelformat.patch;patch=1 \
