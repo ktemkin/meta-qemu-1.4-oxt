@@ -11,8 +11,7 @@ SRC_URI += " \
   file://0008-Honor-the-configured-boot-order.patch \
   file://0009-Pass-the-correct-format-for-cdrom-atapi-passthrough.patch \
   file://0010-qemu-device-use-net-tap-instead-of-net-bridge.patch \
-  file://0011-qemu-add-disk-readonly-flag.patch \
 "
 
 INC_PR="r500"
-PR = "${INC_PR}.4"
+PR = "${INC_PR}.2"
