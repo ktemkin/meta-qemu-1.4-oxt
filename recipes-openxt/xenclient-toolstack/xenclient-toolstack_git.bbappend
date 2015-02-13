@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 500}"
+PRINC := "${@int(PRINC) + 502}"
 
 SRC_URI += " \
   file://0001-xenops-dm-agent-add-drive-device.patch \
