@@ -1,6 +1,6 @@
 FILESEXTRAPATHS := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 501}"
+PRINC := "${@int(PRINC) + 500}"
 
 SRC_URI += " \
   file://0001-xenops-dm-agent-add-drive-device.patch \
@@ -14,6 +14,5 @@ SRC_URI += " \
   file://0009-qemu-1.4-allow-e1000-net-device-for-qemu-by-using-a-.patch \
   file://0010-dmagent-Use-ISO-images-from-dom0.patch \
   file://0011-stubdom-Give-64M-memory.patch \
-  file://0012-qemu-device-pass-disk-readonly-flag.patch \
 "
 
