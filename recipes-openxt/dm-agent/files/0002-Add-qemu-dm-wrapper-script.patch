@@ -13,40 +13,38 @@ Subject: [PATCH 2/9] Add qemu-dm-wrapper script.
  create mode 100644 scripts/Makefile.am
  create mode 100755 scripts/qemu-dm-wrapper
 
-diff --git a/Makefile.am b/Makefile.am
-index 44f7c01..3fce736 100644
---- a/Makefile.am
-+++ b/Makefile.am
+Index: git/Makefile.am
+===================================================================
+--- git.orig/Makefile.am	2015-02-16 17:14:14.307556734 -0500
++++ git/Makefile.am	2015-02-16 17:14:14.475860861 -0500
 @@ -16,4 +16,4 @@
  # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  #
  
 -SUBDIRS = src
 +SUBDIRS = src scripts
-diff --git a/configure.ac b/configure.ac
-index dc1feee..19583a1 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -326,5 +326,6 @@ AC_CONFIG_MACRO_DIR([m4])
+Index: git/configure.ac
+===================================================================
+--- git.orig/configure.ac	2015-02-16 17:14:13.163820888 -0500
++++ git/configure.ac	2015-02-16 17:14:14.475860861 -0500
+@@ -326,5 +326,6 @@
  AM_CONFIG_HEADER(src/config.h)
  
  AC_CONFIG_FILES([Makefile
 +                 scripts/Makefile
                   src/Makefile])
  AC_OUTPUT
-diff --git a/scripts/Makefile.am b/scripts/Makefile.am
-new file mode 100644
-index 0000000..1c1032e
---- /dev/null
-+++ b/scripts/Makefile.am
+Index: git/scripts/Makefile.am
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ git/scripts/Makefile.am	2015-02-16 17:14:14.475860861 -0500
 @@ -0,0 +1 @@
 +bin_SCRIPTS = qemu-dm-wrapper
-diff --git a/scripts/qemu-dm-wrapper b/scripts/qemu-dm-wrapper
-new file mode 100755
-index 0000000..8411be9
---- /dev/null
-+++ b/scripts/qemu-dm-wrapper
-@@ -0,0 +1,74 @@
+Index: git/scripts/qemu-dm-wrapper
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ git/scripts/qemu-dm-wrapper	2015-02-18 14:11:47.856940048 -0500
+@@ -0,0 +1,45 @@
 +#!/bin/sh
 +
 +# Interposer for qemu upstream
@@ -56,7 +54,21 @@ index 0000000..8411be9
 +
 +# configure and use per-vm alsa pcm device with softvol control
 +ALSA_VMID=$DOMID
-+cat >/var/run/alsa-vm-${ALSA_VMID}.conf <<END
++
++# config files
++ASOUND_CONF=/etc/asound/asound.conf
++ASOUND_CONF_VMID=/var/run/alsa-vm-${ALSA_VMID}.conf
++
++# sound card
++DB_PCM=`db-read /audio/playback-pcm`
++if [ "$DB_PCM" != "" ]; then
++    CARD=`echo $DB_PCM | cut -d '-' -f 1`
++    CARD=$(( 10#$CARD ))
++else
++    CARD=0
++fi
++
++cat >${ASOUND_CONF_VMID} <<END
 +pcm.vm-${ALSA_VMID} {
 +  type softvol
 +  slave {
@@ -64,56 +76,13 @@ index 0000000..8411be9
 +  }
 +  control {
 +    name "vm-${ALSA_VMID}"
-+    card 0
++    card ${CARD}
 +  }
 +}
-+pcm.asym0 {
-+    type asym
-+    playback.pcm "dmix0"
-+    capture.pcm "dsnoop0"
-+}
-+
-+pcm.dmix0 {
-+    type dmix
-+    ipc_key 1024
-+    ipc_perm 0666
-+    slave {
-+        pcm {
-+            type hw
-+            card 0
-+            device 0
-+            subdevice 0
-+        }
-+        period_size 1024
-+        buffer_size 8192
-+        format "S16_LE"
-+        periods 8
-+        rate 44100
-+	channels 2
-+    }
-+}
-+
-+pcm.dsnoop0 {
-+    type dsnoop
-+    ipc_key 1025
-+    ipc_perm 0666
-+    slave {
-+        pcm {
-+            type hw
-+            card 0
-+            device 0
-+            subdevice 0
-+        }
-+        period_size 1024
-+        buffer_size 8192
-+        format "S16_LE"
-+        periods 8
-+        rate 44100
-+	channels 2
-+    }
-+}
 +END
-+export ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf:/var/run/alsa-vm-${ALSA_VMID}.conf
++cat ${ASOUND_CONF} >> ${ASOUND_CONF_VMID}
++
++export ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf:${ASOUND_CONF_VMID}
 +export QEMU_ALSA_DAC_DEV=plug:vm-${ALSA_VMID}
 +export QEMU_ALSA_ADC_DEV=plug:dsnoop0
 +export QEMU_ALSA_VOL_CTRL=vm-${ALSA_VMID}
@@ -121,10 +90,10 @@ index 0000000..8411be9
 +ARGS="$*"
 +
 +exec /usr/bin/qemu-system-i386 $ARGS
-diff --git a/src/spawn.c b/src/spawn.c
-index e2e7e1e..354e792 100644
---- a/src/spawn.c
-+++ b/src/spawn.c
+Index: git/src/spawn.c
+===================================================================
+--- git.orig/src/spawn.c	2015-02-16 17:14:13.163820888 -0500
++++ git/src/spawn.c	2015-02-18 14:06:46.401316247 -0500
 @@ -30,7 +30,8 @@
  #include "util.h"
  
@@ -135,7 +104,7 @@ index e2e7e1e..354e792 100644
  #define IOEMU_PATH "/usr/sbin/svirt-interpose"
  #define IOEMU_STUBDOM_PATH "/usr/lib/xen/bin/qemu-dm"
  #define WAITPID_TIMER 2000 /* In millisecond */
-@@ -123,7 +124,13 @@ static bool spawn_init (void)
+@@ -123,7 +124,13 @@
  
  static bool spawn_qemu_args (struct device_model *devmodel)
  {
@@ -150,6 +119,3 @@ index e2e7e1e..354e792 100644
  
      SPAWN_ADD_ARG (devmodel, "-xen-domid");
      SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->domid);
--- 
-2.1.0
-
