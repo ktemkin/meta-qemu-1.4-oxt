@@ -38,7 +38,8 @@ do_configure(){
                 --disable-guest-base --enable-werror \
                 --without-system-pixman \
                 --enable-debug \
-                --enable-surfman
+                --enable-surfman \
+                --enable-atapi-pt --enable-atapi-pt-v4v
 }
 
 do_compile(){
