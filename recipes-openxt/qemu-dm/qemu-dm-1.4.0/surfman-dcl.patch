@@ -338,14 +338,14 @@
      va_list ap;
 --- a/configure
 +++ b/configure
-@@ -227,6 +227,7 @@ coroutine=""
+@@ -226,6 +226,7 @@
+ coroutine=""
  seccomp=""
  glusterfs=""
- virtio_blk_data_plane=""
 +surfman="no"
- 
- # parse CC options first
- for opt do
+ virtio_blk_data_plane=""
+ atapipt="no"
+ atapiptv4v="no"
 @@ -902,6 +903,10 @@ for opt do
    ;;
    --enable-virtio-blk-data-plane) virtio_blk_data_plane="yes"
