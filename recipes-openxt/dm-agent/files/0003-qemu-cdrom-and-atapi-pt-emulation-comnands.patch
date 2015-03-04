@@ -41,8 +41,8 @@ index 57c08d6..eaf8682 100644
 +    } else {
 +        SPAWN_ADD_ARG (devmodel, "-drive");
 +        SPAWN_ADD_ARG (devmodel,
-+                       "file=%s,media=cdrom,if=atapi-pt,format=pt",
-+                       devicepath);
++                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw",
++                       dm_agent_in_stubdom() ? "atapi-pt-v4v" : "atapi-pt-local", devicepath);
  
 -    res = spawn_add_argument (devmodel, cdrom);
 +        free (option);
