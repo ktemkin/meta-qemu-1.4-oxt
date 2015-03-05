@@ -37,4 +37,4 @@ do_install_append(){
     install -m 0755 ${WORKDIR}/qemu-ifup-stubdom ${D}${sysconfdir}/qemu/qemu-ifup
 }
 
-PR = "${INC_PR}.2"
+PR = "${INC_PR}.3"
