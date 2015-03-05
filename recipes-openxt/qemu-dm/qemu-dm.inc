@@ -8,7 +8,6 @@ SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
             file://ioreq-server-upstream.patch;patch=1 \
             file://ioreq-server.patch;patch=1 \
             file://logging-syslog.patch;patch=1 \
-            file://bridge-helper-syslog.patch;patch=1 \
             file://dmbus.patch;patch=1 \
             file://pci-reserve-igd-slot.patch;patch=1 \
             file://switcher.patch;patch=1 \
@@ -75,4 +74,4 @@ do_install(){
     DESTDIR=${D} oe_runmake STRIP='' install
 }
 
-INC_PR = "r2"
+INC_PR = "r3"
