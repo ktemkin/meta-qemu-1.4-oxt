@@ -4,6 +4,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac  \
 DEPENDS = "xen-tools alsa-lib pciutils libpng blktap libxenacpi libv4v openssl zlib libcap-ng libdmbus"
 
 SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
+            file://generic-xenstore-watch-callback-support.patch \
             file://static-fix.patch;patch=1 \
             file://ioreq-server-upstream.patch;patch=1 \
             file://ioreq-server.patch;patch=1 \
@@ -74,4 +75,4 @@ do_install(){
     DESTDIR=${D} oe_runmake STRIP='' install
 }
 
-INC_PR = "r3"
+INC_PR = "r4"
