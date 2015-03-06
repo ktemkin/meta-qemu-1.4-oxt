@@ -249,7 +249,7 @@
  /* Send bytes to syslog */
  static void log_writeb(PCIXenPlatformState *s, char val)
  {
-@@ -77,11 +75,6 @@ static void log_writeb(PCIXenPlatformSta
+@@ -77,16 +75,11 @@ static void log_writeb(PCIXenPlatformSta
      }
  }
  
@@ -261,6 +261,13 @@
  static void unplug_nic(PCIBus *b, PCIDevice *d, void *o)
  {
      /* We have to ignore passthrough devices */
+-    if (pci_get_word(d->config + PCI_CLASS_DEVICE) ==
+-            PCI_CLASS_NETWORK_ETHERNET
++    if (pci_get_byte(d->config + PCI_CLASS_DEVICE) ==
++            PCI_BASE_CLASS_NETWORK
+             && strcmp(d->name, "xen-pci-passthrough") != 0) {
+         qdev_free(&d->qdev);
+     }
 --- a/vl.c
 +++ b/vl.c
 @@ -427,6 +427,19 @@ static QemuOptsList qemu_machine_opts =
