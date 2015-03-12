@@ -1,0 +1,83 @@
+commit 7e5b4035a1931f0b9333ecd28ca74828638f0bcf
+Author: Eric Chanudet <eric.chanudet@gmail.com>
+Date:   Thu Mar 12 15:02:43 2015 +0100
+
+    [pci-pt] pciback use permissive for stubdoms
+    
+    Stub-domains are given write permission on the config-space of PCI devices passed-through to
+    their domain, so Qemu can issue writes directly.
+    
+    OXT-131.
+
+diff --git a/xenops/device.ml b/xenops/device.ml
+index 126dd38..d3721a4 100644
+--- a/xenops/device.ml
++++ b/xenops/device.ml
+@@ -1154,8 +1154,16 @@ let do_flr dev =
+   debug "Device.Pci.do_flr %s" devstr;
+   (try write_string_to_file p "1" with _ -> debug "Device.Pci.do_flr %s FAILED" devstr);
+   debug "Device.Pci.do_flr %s done" devstr
+-   
+-let add_noexn ~xc ~xs ~hvm ?(assign=true) ?(pvpci=true) ?(flr=false) pcidevs_list domid devid =
++
++(* set pciback configuration space policy for this device to permissive *)
++let set_permissive dev =
++  let devstr = string_of_desc dev.desc in
++  let p = "/sys/bus/pci/drivers/pciback/permissive" in
++  debug "Device.Pci.switch_permissive %s" devstr;
++  (try write_string_to_file p devstr with _ -> debug "Device.Pci.switch_permissive %s FAILED" devstr);
++  debug "Device.Pci.switch_permissive %s done" devstr
++
++let add_noexn ~xc ~xs ~hvm ?(assign=true) ?(pvpci=true) ?(flr=false) ?(permissive=false) pcidevs_list domid devid =
+ 	let msitranslate = (List.hd pcidevs_list).msitranslate in
+ 	let power_mgmt   = (List.hd pcidevs_list).power_mgmt in
+ 	let pcidevs = List.map (fun info ->
+@@ -1180,6 +1188,9 @@ let add_noexn ~xc ~xs ~hvm ?(assign=true) ?(pvpci=true) ?(flr=false) pcidevs_lis
+ 	) pcidevs_list in
+ 
+ 	List.iter (fun (dev, resources) ->
++		if (permissive) then (
++			set_permissive dev
++		);
+ 		debug "Device.Pci.add domid=%d %d %d %d %d assign=%s pvpci=%s" domid dev.desc.domain dev.desc.bus dev.desc.slot dev.desc.func (string_of_bool assign) (string_of_bool pvpci);
+ 		if (hvm || pvpci) && assign then (
+ 			Xc.domain_assign_device xc domid (dev.desc.domain, dev.desc.bus, dev.desc.slot, dev.desc.func);
+@@ -1219,8 +1230,8 @@ let add_noexn ~xc ~xs ~hvm ?(assign=true) ?(pvpci=true) ?(flr=false) pcidevs_lis
+ 	] in
+ 	Generic.add_device ~xs device (others @ List.concat xsdevs @ backendlist) frontendlist
+ 
+-let add ~xc ~xs ~hvm ?assign ?pvpci ?flr pcidevs domid devid =
+-	try add_noexn ~xc ~xs ~hvm ?assign ?pvpci ?flr pcidevs domid devid
++let add ~xc ~xs ~hvm ?assign ?pvpci ?flr ?permissive pcidevs domid devid =
++	try add_noexn ~xc ~xs ~hvm ?assign ?pvpci ?flr ?permissive pcidevs domid devid
+ 	with exn ->
+ 		raise (Cannot_add (pcidevs, exn))
+ 
+diff --git a/xenops/device.mli b/xenops/device.mli
+index b8cf5d6..065242a 100644
+--- a/xenops/device.mli
++++ b/xenops/device.mli
+@@ -195,6 +195,7 @@ sig
+ 		-> ?assign:bool
+ 		-> ?pvpci:bool
+ 		-> ?flr:bool
++		-> ?permissive:bool
+ 		-> dev list -> Xc.domid -> int -> unit
+ 	val release : xc:Xc.handle -> xs:Xs.xsh -> hvm:bool
+ 	       -> dev list -> Xc.domid -> int -> unit
+diff --git a/xenops/dm.ml b/xenops/dm.ml
+index 14042b5..e1ac62c 100644
+--- a/xenops/dm.ml
++++ b/xenops/dm.ml
+@@ -284,8 +284,9 @@ let create_dm_stubdom ~xc ~xs dmargs info target_domid uuid =
+ 	) info.vifs;
+ 	(* adding pcis *)
+ 	List.iter (fun (devid, devs) ->
+-		(* stubdom PCIs are not actually assigned *)
+-		Device.PCI.add ~xc ~xs ~hvm:false ~assign:false ~pvpci:true devs stubdom_domid devid
++		(* stubdom PCIs are not actually assigned.
++		 * Grant PCI devices config-space write-access to the stub-domain *)
++		Device.PCI.add ~xc ~xs ~hvm:false ~assign:false ~pvpci:true ~permissive:true devs stubdom_domid devid
+ 	) info.pcis;
+ 
+ 	Device.Vfb.add ~xc ~xs ~hvm:false stubdom_domid;
