@@ -16,5 +16,6 @@ SRC_URI += " \
   file://0011-stubdom-Give-64M-memory.patch \
   file://0012-qemu-device-pass-disk-readonly-flag.patch \
   file://0013-stubdom-pciback-permissive.patch \
+  file://0014-stubdom-pciback-reset-perm.patch \
 "
 
