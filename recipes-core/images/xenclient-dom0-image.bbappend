@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 500}"
+PRINC := "${@int(PRINC) + 501}"
 
 IMAGE_INSTALL += " qemu-dm "
 
