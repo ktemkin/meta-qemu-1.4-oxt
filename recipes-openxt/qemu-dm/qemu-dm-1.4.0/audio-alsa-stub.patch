@@ -170,7 +170,7 @@
  #endif /* audio_int.h */
 --- /dev/null
 +++ b/audio/xen_alsastub.c
-@@ -0,0 +1,918 @@
+@@ -0,0 +1,931 @@
 +#include "qemu-common.h"
 +#include <sys/types.h>
 +#include <sys/ioctl.h>
@@ -261,6 +261,7 @@
 +#define AUDIO_SND_PCM_WRITEI                   0x09
 +#define AUDIO_SND_PCM_READI                    0x10
 +#define AUDIO_SND_PCM_RESUME                   0x11
++#define AUDIO_VOL_CTRL_REMOVE                  0x12
 +
 +#define MAX_V4V_MSG_SIZE (V4V_AUDIO_RING_SIZE)
 +
@@ -981,9 +982,21 @@
 +    return &conf;
 +}
 +
++static void remove_mixer_control(void)
++{
++    uint8_t *v4v_buf = ah->io_buf;
++
++    v4v_buf[0] = AUDIO_VOL_CTRL_REMOVE;
++    v4v_buf += 1;
++
++    v4v_sendto(ah->fd, ah->io_buf, v4v_buf - ah->io_buf,
++	       0, &ah->remote_addr);
++}
++
 +static void alsa_audio_fini(void *opaque)
 +{
 +    (void) opaque;
++    remove_mixer_control();
 +}
 +
 +static struct audio_option alsa_options[] = {

@@ -203,7 +203,52 @@ This patch is used for enabling audio devices in stubdomain
      }
  
      return -1;
-@@ -1228,6 +1383,13 @@ static struct audio_option alsa_options[
+@@ -1157,9 +1312,44 @@ static void *alsa_audio_init (void)
+     return &conf;
+ }
+ 
++static int removecontrol(const char* hw, const char* name)
++{
++    snd_ctl_t *ctl;
++    int err;
++    snd_ctl_elem_id_t *id;
++    snd_ctl_elem_value_t *control;
++
++    err = snd_ctl_open(&ctl, hw, 0);
++    if (err < 0){
++	return err;
++    }
++    snd_ctl_elem_id_alloca(&id);
++    snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
++    snd_ctl_elem_id_set_name(id, name);
++    snd_ctl_elem_value_alloca(&control);
++    snd_ctl_elem_value_set_id(control, id);
++    err = snd_ctl_elem_remove(ctl, id);
++    if (err < 0) {
++	snd_ctl_close(ctl);
++	return err;
++    }
++    snd_ctl_close(ctl);
++
++    return 0;
++}
++
++static void remove_mixer_control(void)
++{
++    int err = removecontrol("default", conf.volume_control);
++    if (err < 0) {
++	dolog("Could not remove mixer control %s. Error code: %d.\n",conf.volume_control  ,err);
++    }
++}
++
+ static void alsa_audio_fini (void *opaque)
+ {
+     (void) opaque;
++    remove_mixer_control();
+ }
+ 
+ static struct audio_option alsa_options[] = {
+@@ -1228,6 +1418,13 @@ static struct audio_option alsa_options[
          .valp        = &conf.verbose,
          .descr       = "Behave in a more verbose way"
      },
