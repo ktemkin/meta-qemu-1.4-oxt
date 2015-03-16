@@ -11,6 +11,7 @@ SRC_URI += " \
   file://0008-Honor-the-configured-boot-order.patch \
   file://0010-qemu-device-use-net-tap-instead-of-net-bridge.patch \
   file://0011-qemu-add-disk-readonly-flag.patch \
+  file://0012-updated-xenstore-path.patch;striplevel=1 \
 "
 
 INC_PR = "r500"
