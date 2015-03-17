@@ -30,8 +30,6 @@ SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
             file://0017-vga-spinlock.patch;striplevel=1 \
             file://0018-vga-shadow-bda.patch;striplevel=1 \
             file://0019-surfman-dcl.patch;striplevel=1 \
-            file://0021-fix-surfman-coherency.patch;striplevel=1 \
-            file://0022-change-default-pixelformat.patch;striplevel=1 \
             "
 
 SRC_URI[md5sum] = "78f13b774814b6b7ebcaf4f9b9204318"
@@ -81,4 +79,4 @@ do_install(){
     DESTDIR=${D} oe_runmake STRIP='' install
 }
 
-INC_PR = "r4"
+INC_PR = "r5"
