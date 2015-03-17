@@ -1,3 +1,67 @@
+From cb0dac56f122197016ea9524fee643562043a760 Mon Sep 17 00:00:00 2001
+From: Eric Chanudet <chanudete@ainfosec.com>
+Date: Mon, 16 Mar 2015 11:21:45 -0400
+Subject: [PATCH 1/2] Enable support for XenClient multiplexed input.
+
+--------------------------------------------------------------------------------
+SHORT DESCRIPTION:
+--------------------------------------------------------------------------------
+This patch enables support for using the XenClient multiplexed input server to
+provide emulated mouse and keyboard input for QEMU.
+
+--------------------------------------------------------------------------------
+LONG DESCRIPTION:
+--------------------------------------------------------------------------------
+The XenClient Input daemon allows the user to use a single physical keyboard/
+mouse to control more than one domain, one domain at a time. This patch allows
+the multiplexed input driver to control a QEMU HVM domain by "piping" input
+events to an emulated keyboard and mouse.
+
+--------------------------------------------------------------------------------
+CHANGELOG
+--------------------------------------------------------------------------------
+Initial commit: Eric Chanudet <chanudete@ainfosec.com> 1/15/2015
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+External Dependencies:
+  -openxt-input-daemon, the OpenXT multiplexed input daemon
+  -DMBus, the Device Management Bus
+
+Internal/Patch Dependencies:
+  -DMBus Support (dmbus.patch) -- may be applied after
+
+--------------------------------------------------------------------------------
+REMOVAL
+--------------------------------------------------------------------------------
+This patch enables multiplexed input for HVM domains. This should be
+removed and/or reworked if the OpenXT input server is replaced.
+
+--------------------------------------------------------------------------------
+UPSTREAM PLAN
+--------------------------------------------------------------------------------
+This code is OpenXT specific, and not currently planned for upstream. Upstream
+progress will likely be reconsidered after some elements of the input server
+(SuperHID) mature.
+
+--------------------------------------------------------------------------------
+PATCHES
+--------------------------------------------------------------------------------
+---
+ include/sysemu/sysemu.h |   1 +
+ include/ui/console.h    |   1 +
+ ui/Makefile.objs        |   1 +
+ ui/input.c              |  24 +++
+ ui/xen-input.c          | 492 ++++++++++++++++++++++++++++++++++++++++++++++++
+ ui/xen-input.h          |  30 +++
+ vl.c                    |   6 +-
+ 7 files changed, 554 insertions(+), 1 deletion(-)
+ create mode 100644 ui/xen-input.c
+ create mode 100644 ui/xen-input.h
+
+diff --git a/include/sysemu/sysemu.h b/include/sysemu/sysemu.h
+index 1d9599e..7118218 100644
 --- a/include/sysemu/sysemu.h
 +++ b/include/sysemu/sysemu.h
 @@ -91,6 +91,7 @@ typedef enum DisplayType
@@ -8,9 +72,11 @@
  } DisplayType;
  
  extern int autostart;
+diff --git a/include/ui/console.h b/include/ui/console.h
+index fc23baa..6da4b64 100644
 --- a/include/ui/console.h
 +++ b/include/ui/console.h
-@@ -59,6 +59,7 @@ void qemu_remove_led_event_handler(QEMUP
+@@ -59,6 +59,7 @@ void qemu_remove_led_event_handler(QEMUPutLEDEntry *entry);
  void kbd_put_keycode(int keycode);
  void kbd_put_ledstate(int ledstate);
  void kbd_mouse_event(int dx, int dy, int dz, int buttons_state);
@@ -18,9 +84,11 @@
  
  /* Does the current mouse generate absolute events */
  int kbd_mouse_is_absolute(void);
+diff --git a/ui/Makefile.objs b/ui/Makefile.objs
+index d9db073..e0793eb 100644
 --- a/ui/Makefile.objs
 +++ b/ui/Makefile.objs
-@@ -13,6 +13,7 @@ common-obj-$(CONFIG_SDL) += sdl.o sdl_zo
+@@ -13,6 +13,7 @@ common-obj-$(CONFIG_SDL) += sdl.o sdl_zoom.o x_keymap.o
  common-obj-$(CONFIG_COCOA) += cocoa.o
  common-obj-$(CONFIG_CURSES) += curses.o
  common-obj-$(CONFIG_VNC) += $(vnc-obj-y)
@@ -28,9 +96,11 @@
  
  $(obj)/sdl.o $(obj)/sdl_zoom.o: QEMU_CFLAGS += $(SDL_CFLAGS) 
  
+diff --git a/ui/input.c b/ui/input.c
+index 9abef0c..41b0981 100644
 --- a/ui/input.c
 +++ b/ui/input.c
-@@ -447,6 +447,30 @@ void kbd_mouse_event(int dx, int dy, int
+@@ -447,6 +447,30 @@ void kbd_mouse_event(int dx, int dy, int dz, int buttons_state)
      }
  }
  
@@ -61,6 +131,9 @@
  int kbd_mouse_is_absolute(void)
  {
      if (QTAILQ_EMPTY(&mouse_handlers)) {
+diff --git a/ui/xen-input.c b/ui/xen-input.c
+new file mode 100644
+index 0000000..9aac7fb
 --- /dev/null
 +++ b/ui/xen-input.c
 @@ -0,0 +1,492 @@
@@ -556,6 +629,9 @@
 +
 +  return rc;
 +}
+diff --git a/ui/xen-input.h b/ui/xen-input.h
+new file mode 100644
+index 0000000..7861c96
 --- /dev/null
 +++ b/ui/xen-input.h
 @@ -0,0 +1,30 @@
@@ -589,6 +665,8 @@
 +int32_t xen_input_send_shutdown(int32_t reason);
 +
 +#endif /* !UI_XEN_INPUT_H_ */
+diff --git a/vl.c b/vl.c
+index 1355f69..e088734 100644
 --- a/vl.c
 +++ b/vl.c
 @@ -169,6 +169,7 @@ int main(int argc, char **argv)
@@ -608,7 +686,7 @@
  static int display_remote;
  const char* keyboard_layout = NULL;
  ram_addr_t ram_size;
-@@ -4268,6 +4269,9 @@ int main(int argc, char **argv, char **e
+@@ -4251,6 +4252,9 @@ int main(int argc, char **argv, char **envp)
          cocoa_display_init(ds, full_screen);
          break;
  #endif
@@ -618,3 +696,6 @@
      default:
          break;
      }
+-- 
+2.1.3
+
